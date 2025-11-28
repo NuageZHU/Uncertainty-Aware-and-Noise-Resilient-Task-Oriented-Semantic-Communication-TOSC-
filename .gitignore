@@ -21,12 +21,27 @@ desktop.ini
 # Outputs / data 
 results/
 outputs/
-*.png
-*.jpg
-*.jpeg
 *.csv
 *.npz
 *.npy
+
+# Allow image files to be tracked
+!*.png
+!*.jpg
+!*.jpeg
+!*.webp
+!*.gif
+!*.bmp
+!*.svg
+
+# Allow image plots under results/
+!results/**/*.png
+!results/**/*.jpg
+!results/**/*.jpeg
+!results/**/*.webp
+!results/**/*.gif
+!results/**/*.bmp
+!results/**/*.svg
 
 # Caches
 .cache/
