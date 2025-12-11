@@ -19,7 +19,6 @@ Thumbs.db
 desktop.ini
 
 # Outputs / data 
-results/
 outputs/
 *.csv
 *.npz
@@ -34,7 +33,10 @@ outputs/
 !*.bmp
 !*.svg
 
-# Allow image plots under results/
+# Results folder: ignore CSV/data files but keep images
+results/*.csv
+results/*.npz
+results/*.npy
 !results/**/*.png
 !results/**/*.jpg
 !results/**/*.jpeg
