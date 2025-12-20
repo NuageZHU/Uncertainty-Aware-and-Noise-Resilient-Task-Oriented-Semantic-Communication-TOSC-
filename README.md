@@ -3,6 +3,8 @@
 This repository contains a **minimal simulation framework** for studying how *uncertainty-aware transmission* and *semantic robustness* can be modeled in **AI-native communication systems**.  
 The implementation combines pretrained **Variational Autoencoders (VAEs)** for image encoding and **Vision-Language Models (CLIP)** for semantic evaluation, allowing the simulation of noisy semantic channels and adaptive transmission decisions.
 
+**🆕 Now includes an interactive web dashboard** for real-time visualization and experimentation!
+
 ---
 
 ## 📖 Overview
@@ -22,47 +24,189 @@ The pipeline demonstrates a simplified version of the semantic communication loo
    A confidence-based rule decides whether to transmit through the channel.  
    If the uncertainty `u = 1 − similarity` exceeds a threshold `τ`, transmission is triggered; otherwise, it is skipped to save bandwidth.
 
-The project follows the structure below:
+---
+
+## 📁 Project Structure
 
 ```
-semantic-channel-modeling/
+Uncertainty-Aware-TOSC/
 │
-├── semcom_main.py          # Main demo script
-├── semcom_utils.py         # Utility functions (VAE, CLIP, channel, etc.)
-├── experiments/            # Experimental scripts
-│   ├── exp_quantization_noise.py      # Exp1: Quantization & noise
-│   ├── exp_tau_scan.py                # Exp2: Tau threshold scan
-│   ├── exp_sigma_tau_joint.py         # Exp3: Sigma×Tau joint (recommended)
-│   ├── exp_complexity_robustness.py   # Exp4: Image complexity robustness
-│   ├── exp_quick_test.py              # Quick test script
-│   └── README.md                      # Experiments guide
-├── docs/                   # Documentation
-│   ├── USAGE_GUIDE.md             # Installation & usage guide
-│   ├── EXP1_RESULTS.md            # Experiment 1 results
-│   ├── EXP2_RESULTS.md            # Experiment 2 results
-│   ├── EXP3_RESULTS.md            # Experiment 3 results
-│   └── EXP4_RESULTS.md            # Experiment 4 results
-├── data/                   # Input images directory
-│   └── all_images/        # Test image dataset (150 images)
-├── results/                # Experimental results
-│   ├── *.csv              # Data tables
-│   └── plots/             # Visualization plots
-├── out_demo/               # Demo output images
-└── requirements.txt        # Python dependencies
+├── Backend_semcom_system_and_API/     # 🐍 Python Backend (FastAPI + ML Models)
+│   ├── app/
+│   │   └── main.py                    # FastAPI server with endpoints
+│   ├── semcom_main.py                 # Main demo script (CLI)
+│   ├── semcom_utils.py                # Utility functions (VAE, CLIP, channel)
+│   ├── experiments/                   # Experimental scripts
+│   │   ├── exp_quantization_noise.py  # Exp1: Quantization & noise
+│   │   ├── exp_tau_scan.py            # Exp2: Tau threshold scan
+│   │   ├── exp_sigma_tau_joint.py     # Exp3: Sigma×Tau joint
+│   │   ├── exp_complexity_robustness.py # Exp4: Image complexity
+│   │   └── README.md                  # Experiments guide
+│   ├── docs/                          # Documentation
+│   ├── data/                          # Test images (150 images)
+│   ├── results/                       # CSV results & plots
+│   └── requirements.txt               # Python dependencies
+│
+├── semcom-dashboard-app/              # ⚛️ React Frontend (Vite + TypeScript)
+│   ├── src/
+│   │   ├── components/                # UI components
+│   │   │   ├── semantic-comm-dashboard.tsx  # Main dashboard
+│   │   │   └── dashboard/             # Dashboard sub-components
+│   │   ├── lib/
+│   │   │   └── api.ts                 # API client
+│   │   └── hooks/
+│   │       └── use-api.ts             # React hooks for API
+│   ├── package.json                   # Node dependencies
+│   └── vite.config.ts                 # Vite configuration
+│
+└── README.md                          # This file
 ```
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- **Python 3.10+** (for backend)
+- **Node.js 18+** (for frontend)
+- **GPU recommended** (CUDA) for faster inference, but CPU works too
+
+---
+
+### 1️⃣ Backend Setup (FastAPI + ML Models)
+
+```bash
+# Navigate to backend folder
+cd Backend_semcom_system_and_API
+
+# Create virtual environment
+python -m venv .venv
+
+# Activate virtual environment
+# Windows:
+.venv\Scripts\activate
+# macOS/Linux:
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# (Optional) For faster model loading:
+pip install accelerate
+```
+
+#### Run the API Server
+
+```bash
+cd Backend_semcom_system_and_API
+uvicorn app.main:app --reload --port 8000
+```
+
+The API will be available at: **http://127.0.0.1:8000**
+
+📚 API Documentation: **http://127.0.0.1:8000/docs**
+
+---
+
+### 2️⃣ Frontend Setup (React Dashboard)
+
+```bash
+# Navigate to frontend folder
+cd semcom-dashboard-app
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+The dashboard will be available at: **http://localhost:5173**
+
+---
+
+### 3️⃣ Using Both Together
+
+1. **Start the backend** (Terminal 1):
+   ```bash
+   cd Backend_semcom_system_and_API
+   uvicorn app.main:app --reload --port 8000
+   ```
+
+2. **Start the frontend** (Terminal 2):
+   ```bash
+   cd semcom-dashboard-app
+   npm run dev
+   ```
+
+3. **Open the dashboard** in your browser: http://localhost:5173
+
+---
+
+## 🖥️ What Each Component Does
+
+### Backend (`Backend_semcom_system_and_API/`)
+
+The Python backend provides:
+
+| Endpoint | Description |
+|----------|-------------|
+| `POST /api/upload-run` | **Upload your own image** and run it through the semantic pipeline. Returns original, local reconstruction, and channel reconstruction images with metrics. |
+| `GET /api/samples` | List available test images from the dataset |
+| `POST /api/run` | Run pipeline on a dataset image |
+| `GET /api/experiments/tau-scan` | Pre-computed tau threshold experiment results |
+| `GET /api/experiments/quantization-noise` | Pre-computed quantization/noise results |
+| `GET /api/experiments/complexity` | Pre-computed image complexity results |
+
+**Key Features:**
+- 🧠 **Stable Diffusion VAE** for semantic encoding/decoding
+- 🔍 **CLIP ViT-B/32** for semantic similarity evaluation
+- 📡 **Channel simulation** with noise, quantization, and dropout
+- 🎯 **Uncertainty-based transmission gating**
+
+### Frontend (`semcom-dashboard-app/`)
+
+An interactive React dashboard that provides:
+
+- 📤 **Image Upload**: Upload your own images to test the pipeline
+- 🎛️ **Parameter Controls**: Adjust `n_bits`, `sigma`, `tau` in real-time
+- 📊 **Visualization**: See original vs reconstructed images side-by-side
+- 📈 **Experiment Results**: Interactive charts from pre-computed experiments
+- 📉 **Metrics Display**: Semantic similarity, uncertainty, transmission decisions
+
+---
+
+## 🧪 Running Experiments (CLI)
+
+For batch experiments without the web interface:
+
+```bash
+cd Backend_semcom_system_and_API
+
+# Quick test (few configurations)
+python experiments/exp_quick_test.py
+
+# Full experiments
+python experiments/exp_quantization_noise.py    # Exp1
+python experiments/exp_tau_scan.py              # Exp2
+python experiments/exp_sigma_tau_joint.py       # Exp3 (recommended)
+python experiments/exp_complexity_robustness.py # Exp4
+```
+
+Results are saved to `results/` as CSV files and plots.
 
 ---
 
 ## 📚 Documentation
 
-- **[Usage Guide](docs/USAGE_GUIDE.md)** - Installation, quick start, troubleshooting
-- **[Experiments Guide](experiments/README.md)** - Experimental scripts details
+- **[Usage Guide](Backend_semcom_system_and_API/docs/USAGE_GUIDE.md)** - Detailed installation & usage
+- **[Experiments Guide](Backend_semcom_system_and_API/experiments/README.md)** - Experimental scripts details
 
 ### 📊 Experimental Results
-- **[Experiment 1: Quantization & Noise](docs/EXP1_RESULTS.md)** - Rate-distortion analysis, 6-bit optimal finding
-- **[Experiment 2: Tau Threshold Scan](docs/EXP2_RESULTS.md)** - Uncertainty threshold optimization, 17% quality gain
-- **[Experiment 3: Sigma×Tau Joint](docs/EXP3_RESULTS.md)** - Channel-adaptive transmission strategy (recommended)
-- **[Experiment 4: Image Complexity Robustness](docs/EXP4_RESULTS.md)** - Content-aware robustness analysis, "Goldilocks Zone" discovery
+- **[Experiment 1: Quantization & Noise](Backend_semcom_system_and_API/docs/EXP1_RESULTS.md)** - Rate-distortion analysis
+- **[Experiment 2: Tau Threshold Scan](Backend_semcom_system_and_API/docs/EXP2_RESULTS.md)** - Uncertainty threshold optimization
+- **[Experiment 3: Sigma×Tau Joint](Backend_semcom_system_and_API/docs/EXP3_RESULTS.md)** - Channel-adaptive strategy
+- **[Experiment 4: Image Complexity](Backend_semcom_system_and_API/docs/EXP4_RESULTS.md)** - Content-aware robustness
 
 ---
 
@@ -71,77 +215,22 @@ semantic-channel-modeling/
 - ✅ Pretrained **Stable Diffusion VAE** for latent-space encoding  
 - ✅ Pretrained **OpenCLIP (ViT-B/32)** for semantic similarity evaluation  
 - ✅ Configurable **noise, quantization, and dropout** parameters  
-- ✅ Adaptive **uncertainty-based transmission gate**  
-- ✅ Modular, research-ready structure (easy to extend for BLIP, multi-image, or text-conditioned setups)
-
----
-
-## ⚙️ Installation
-
-### 1. Clone the repository
-```bash
-git clone https://github.com/<yourusername>/semantic-channel-modeling.git
-cd semantic-channel-modeling
-```
-
-### 2. Create and activate a virtual environment
-**Windows (PowerShell):**
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-```
-
-**macOS / Linux:**
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-### 3. Install dependencies
-```bash
-pip install -r requirements.txt
-```
-
-> ⚠️ Note: for faster model loading, it is recommended to install:
-> ```bash
-> pip install accelerate hf_xet
-> ```
-> (optional, improves performance when downloading Hugging Face weights)
-
----
-
-## 🧪 Running the Simulation
-
-To execute the experiment with default settings:
-
-```bash
-python semcom_main.py
-```
-
-Expected console output:
-```
-{'transmit': False, 'sim_local': 0.9783, 'sim_rx': 0.9783, 'uncertainty': 0.0216}
-Images saved in: out_demo/
-```
-
-### Output Files (in `out_demo/`)
-| File | Description |
-|------|--------------|
-| `input_resized.png` | Original resized input image |
-| `recon_baseline.png` | Local VAE reconstruction (no channel) |
-| `recon_rx.png` | Reconstruction after channel corruption *(only if transmitted)* |
+- ✅ Adaptive **uncertainty-based transmission gate**
+- ✅ **REST API** for integration with other applications
+- ✅ **Interactive web dashboard** for visualization and experimentation
+- ✅ **Image upload** to test your own images
+- ✅ Modular, research-ready structure
 
 ---
 
 ## 🧮 Key Parameters
 
 | Parameter | Description | Default |
-|------------|--------------|----------|
-| `SIGMA` | Standard deviation of AWGN noise | `0.10` |
-| `N_BITS` | Quantization bit-depth | `6` |
-| `DROPOUT_P` | Dropout probability on latent vector | `0.00` |
-| `TAU` | Transmission threshold for uncertainty gating | `0.02` |
-| `SIZE_VAE` | Input image resolution for VAE | `512 × 512` |
+|-----------|-------------|---------|
+| `n_bits` | Quantization bit-depth (2-16) | `6` |
+| `sigma` | Standard deviation of AWGN noise | `0.10` |
+| `tau` | Transmission threshold for uncertainty gating | `0.05` |
+| `dropout_p` | Dropout probability on latent vector | `0.00` |
 
 ---
 
@@ -179,11 +268,13 @@ Images saved in: out_demo/
 ## 📊 Example Interpretation
 
 | Metric | Meaning |
-|---------|----------|
+|--------|---------|
 | `sim_local` | CLIP cosine similarity before transmission |
+| `sim_rx` | Semantic similarity after noisy transmission |
 | `uncertainty` | `1 - sim_local`; low means high confidence |
 | `transmit` | `True` if uncertainty > τ (channel used) |
-| `sim_rx` | Semantic similarity after noisy transmission |
+| `effective_sim` | Final similarity (sim_rx if transmitted, else sim_local) |
+| `semantic_degradation` | `sim_local - sim_rx`; quality loss from channel |
 
 ---
 
