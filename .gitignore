@@ -1,5 +1,10 @@
+# ============================================
+# General
+# ============================================
+
 # Python
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *.egg-info/
 .eggs/
@@ -18,32 +23,24 @@ env/
 Thumbs.db
 desktop.ini
 
-# Outputs / data 
-outputs/
-*.csv
-*.npz
-*.npy
-
-# Allow image files to be tracked
-!*.png
-!*.jpg
-!*.jpeg
-!*.webp
-!*.gif
-!*.bmp
-!*.svg
-
-# Results folder: ignore CSV/data files but keep images
-results/*.csv
-results/*.npz
-results/*.npy
-!results/**/*.png
-!results/**/*.jpg
-!results/**/*.jpeg
-!results/**/*.webp
-!results/**/*.gif
-!results/**/*.bmp
-!results/**/*.svg
-
 # Caches
 .cache/
+
+# ============================================
+# Backend folder (Backend_semcom_system_and_API)
+# ============================================
+
+# Results - ignore CSVs and data, keep plots
+Backend_semcom_system_and_API/results/*.csv
+Backend_semcom_system_and_API/results/*.npz
+Backend_semcom_system_and_API/results/*.npy
+
+# Web runs (generated images from API)
+Backend_semcom_system_and_API/results/web_runs/
+
+# Output demo folder
+Backend_semcom_system_and_API/out_demo/
+
+# Keep plots
+!Backend_semcom_system_and_API/results/plots/*.png
+!Backend_semcom_system_and_API/results/plots/*.jpg
